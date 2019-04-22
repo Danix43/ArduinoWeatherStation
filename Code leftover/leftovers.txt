@@ -1,0 +1,39 @@
+void parseJson() {
+  doc["id"] = 2;
+  doc["machinename"] = "Poseidon01";
+  doc["machinetype"] = "WeatherStation";
+  doc["location"] = "test1";
+  doc["temperature"] = temp;
+  doc["temperatureinkelvin"] = tempK;
+  doc["humidity"] = hum;
+
+  serializeJson(doc, result);
+  Serial.println(result);
+}
+
+void sendDataToApi() {
+  delay(5000);
+
+  doc["id"] = 2;
+  doc["machinename"] = "Poseidon01";
+  doc["machinetype"] = "WeatherStation";
+  doc["usedsensor"] = "DHT11";
+  doc["location"] = "test1";
+  doc["temperature"] = temp;
+  doc["temperatureinkelvin"] = tempK;
+  doc["humidity"] = hum;
+
+  if (client.connect(host, 8080)) {
+    client.println("PATCH /house/termometre/update?id=1 HTTP/1.1");
+    client.println("Host: 192.168.0.160:8080");
+    client.println("User-Agent: DS/1.0");
+    client.println("Connection: close");
+    client.println("Content-Type: application/json");
+    client.print("Content-Length:");
+    client.println(measureJson(doc));
+    client.println();
+    serializeJson(doc, client);
+    String response = client.readStringUntil('\n');
+    Serial.print("Response :");
+    Serial.println(response);
+  }
